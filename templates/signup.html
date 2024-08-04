@@ -8,10 +8,10 @@
   <body>
     <header>
       <h1>Taekwondo PT Tracker</h1>
-      <h2>Login Page</h2>
+      <h2>Sign Up Page</h2>
     </header>
-    <h3>{{ login_message }}</h3>
-    <form action="/login" method="POST">
+    <h3>{{ signup_message }}</h3>
+    <form action="/store" method="POST">
       <label for="name">Enter your name: </label>
       <input type="text" id="name" name="name" required>
       <br>
@@ -27,13 +27,14 @@
       <!-- add dropdown later -->
       <input type="text" id="pin" name="pin" placeholder="Fill in EXCO ID">
       <br>
-      <input type="submit" value="Log In">
+      <input type="submit" value="Sign Up">
     </form>
     <hr>
-    <form action="/signup">
-      <input type="submit" value = "Sign Up">
+    <form action="/">
+      <input type="submit" value = "Return to Login Page">
     </form>
-
+    
+    <!-- validate password on front end -->
     <script>
       document.getElementById("pin").style.display = "none";
 
@@ -45,6 +46,5 @@
         }
       }
     </script>
-    
   </body>
 </html>
