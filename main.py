@@ -7,7 +7,7 @@ app = Flask(__name__)
 exco_pin = "3829"
 login_message = "Welcome!"
 signup_message = "Welcome!"
-username = ""
+authenticated = False
 
 @app.route('/')
 def home():
@@ -20,22 +20,23 @@ def signup():
 
 @app.route("/store", methods=["POST"])
 def store():
+    print("hello")
     global signup_message
-
-    # file closes after with block
-    with open("account_details.csv", "r") as file:
-        details = list(csv.reader(file))[1:]
-        
-    for row in details:
-        if row[0] == request.form["username"]:
-            signup_message = "Username already exists!"
-            return redirect("/signup")
 
     name = request.form.get("name")
     password = request.form.get("password")
     status = request.form.get("status")
     pin = request.form.get("pin", "")
-
+    
+    # file closes after with block
+    with open("account_details.csv", "r") as file:
+        details = list(csv.reader(file))[1:]
+        
+    for row in details:
+        if row[0] == name:
+            signup_message = "Username already exists!"
+            return redirect("/signup")
+    print("hello")
     # password validation done in frontend
 
     if status == "exco" and pin != exco_pin:
@@ -70,10 +71,9 @@ def login():
         details = list(csv.reader(file))[1:]
     for row in details:
         if row[0] == name and row[1] == password and row[2] == status:
-            # update global username for verification at redirectory
-            global username
-            username = name
-
+            # update global variable to allow use of account routes from login route
+            global authenticated
+            authenticated = True
             # redirect to accounts
             if status == "exco":
                 return redirect(f"/exco/{name}")
@@ -87,17 +87,20 @@ def login():
 @app.route("/exco/<name>")
 def exco(name):
     # protection from just typing in the url
-    global username
-    if username != name:
+    global authenticated
+    if not authenticated:
         return redirect("/")
+    # prevent continued access to exco account
+    authenticated = False
     return render_template("exco.html", name=name)
 
 @app.route("/member/<name>")
 def member(name):
-    print("got it")
-    global username
-    if username != name:
+    global authenticated
+    if not authenticated:
         return redirect("/")
+    # prevent continued access to member account
+    authenticated = False
     return render_template("member.html", name=name)
 if __name__ == '__main__':
   app.run(host='0.0.0.0', port=5000)
