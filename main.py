@@ -11,6 +11,8 @@ authenticated = False
 
 @app.route('/')
 def home():
+    global authenticated
+    authenticated = False
     return render_template("login.html", login_message=login_message)
 
 @app.route("/signup")
@@ -22,6 +24,7 @@ def signup():
 def store():
     print("hello")
     global signup_message
+    global login_message
 
     name = request.form.get("name")
     password = request.form.get("password")
@@ -49,7 +52,7 @@ def store():
         writer = csv.writer(file)
         writer.writerow([name, password, status])
 
-    signup_message = "Account created successfully!"
+    login_message = "Account created successfully!"
     return redirect("/")
 
 @app.route("/login", methods=["POST"])
@@ -90,8 +93,6 @@ def exco(name):
     global authenticated
     if not authenticated:
         return redirect("/")
-    # prevent continued access to exco account
-    authenticated = False
     return render_template("exco.html", name=name)
 
 @app.route("/member/<name>")
@@ -99,8 +100,6 @@ def member(name):
     global authenticated
     if not authenticated:
         return redirect("/")
-    # prevent continued access to member account
-    authenticated = False
     return render_template("member.html", name=name)
 if __name__ == '__main__':
   app.run(host='0.0.0.0', port=5000)
