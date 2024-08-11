@@ -25,14 +25,11 @@ print("AccountPT: ", cursor.fetchall())
 exco_pin = "3829"
 login_message = "Welcome!"
 signup_message = "Welcome!"
-authenticated = False
 acc_id = None
 acc_message = ""
 
 @app.route('/')
 def home():
-    global authenticated
-    authenticated = False
     return render_template("login.html", login_message=login_message)
 
 @app.route("/signup")
@@ -101,6 +98,9 @@ def login():
             global acc_id
             acc_id = row[0]
             # redirect to accounts
+
+            # open AccountPT table and add the pt_id from Physical_Training table
+
             return redirect("/account")
 
     # no matching name and password and status
@@ -133,11 +133,14 @@ def account():
     pt_ids = tuple([row[0] for row in pt_ids])
     print("pt_id")
     print(pt_ids)
-    if len(pt_ids) == 1:
+    if len(pt_ids) == 0:
         pt_details = []
         pt_descs = []
         pt_reps = []
     else:
+        if len(pt_ids) == 1:
+            # time to SQL inject
+            pt_ids = f"({pt_ids[0]})"
         # get physical training data
         cursor.execute(f"SELECT * FROM Physical_Training WHERE pt_id IN {pt_ids}")
         pt_details = cursor.fetchall()
@@ -182,9 +185,45 @@ def account():
     print(pt_details)
     print(pt_descs)
     print(pt_reps)
+    table = []
     # process the 3 lists into a 2D list and return to template
-    
-    return render_template("account.html", name=name, status=status, acc_message=acc_message)
+    for i in range(len(pt_details)):
+        table.append(list(pt_details[i][0:3]) + [pt_reps[i]] + [pt_descs[i]] + list(pt_details[i][4:6]))
+        
+    print(table)
+    return render_template("account.html", name=name, status=status, acc_message=acc_message, table=table)
+
+
+@app.route("/submit_pt", methods=["POST"])
+def submit_pt():
+    global acc_message
+    pt_id = request.form.get("completed_id")
+    if pt_id == "NULL":
+        acc_message = "No physical training selected."
+        return redirect("/account")
+        
+    date_submitted = datetime.now()
+    cursor.execute("SELECT end_date FROM Physical_Training WHERE pt_id = ?", (pt_id,))
+    print("end date")
+    date_due = datetime.strptime(cursor.fetchall()[0][0], "%Y-%m-%d")
+    date_diff = (date_due - date_submitted).days
+    if date_diff < 0:
+        # passed deadline
+        acc_message = "You have passed the deadline!"
+    else:
+        acc_message = "Good job and get some rest!"
+
+    # remove row from AccountPT
+    global acc_id
+    print("acc_id")
+    print(acc_id)
+    print("pt_id")
+    print(pt_id)
+    cursor.execute("DELETE FROM AccountPT WHERE pt_id = ? AND acc_id = ?", (pt_id, acc_id))
+    conn.commit()
+
+    return redirect("/account")
+
 
 @app.route("/set_pt")
 def set_pt():
@@ -243,8 +282,14 @@ def set_pt():
     acc_message = "Physical Training added successfully!"
     return redirect("/account")
 
-
-
+@app.route("/logout")
+def logout():
+    global acc_id
+    global login_message
+    acc_id = None
+    login_message = "Successfully Logged Out!"
+    
+    return redirect("/")
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', port=5000)
