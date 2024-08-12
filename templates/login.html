@@ -10,6 +10,7 @@
       <h1>Taekwondo PT Tracker</h1>
       <h2>Login Page</h2>
     </header>
+    <section>
     <h3>{{ login_message }}</h3>
     <form action="/login" method="POST">
       <label for="name">Enter your name: </label>
@@ -27,13 +28,17 @@
       <!-- add dropdown later -->
       <input type="text" id="pin" name="pin" placeholder="Fill in EXCO ID">
       <br>
-      <input type="submit" value="Log In">
+      <input type="submit" value="Log In" id="submit_button">
     </form>
-    <hr>
-    <form action="/signup">
-      <input type="submit" value = "Sign Up Page">
-    </form>
+    </section>
+    <footer>
+      <form action="/signup">
+        <input type="submit" value = "Sign Up Page" id="submit_button">
+      </form>
+    </footer>
 
+    <img src="{{ url_for('static', filename='tkd logo.jpg') }}" alt="ASK TKD Logo">
+    
     <script>
       document.getElementById("pin").style.display = "none";
 

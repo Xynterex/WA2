@@ -10,6 +10,7 @@
       <h1>Taekwondo PT Tracker</h1>
       <h2>Sign Up Page</h2>
     </header>
+    <section>
     <h3>{{ signup_message }}</h3>
     <form action="/store" method="POST">
       <label for="name">Enter your name: </label>
@@ -27,12 +28,16 @@
       <!-- add dropdown later -->
       <input type="text" id="pin" name="pin" placeholder="Fill in EXCO ID">
       <br>
-      <input type="submit" value="Sign Up">
+      <input type="submit" value="Sign Up" id="submit_button">
     </form>
-    <hr>
-    <form action="/">
-      <input type="submit" value = "Return to Login Page">
-    </form>
+    </section>
+    <footer>
+      <form action="/">
+        <input type="submit" value = "Return to Login Page" id="submit_button">
+      </form>
+    </footer>
+
+    <img src="{{ url_for('static', filename='tkd logo.jpg') }}" alt="ASK TKD Logo">
     
     <!-- validate password on front end -->
     <script>

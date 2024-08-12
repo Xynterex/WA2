@@ -11,6 +11,7 @@
       <h2>{{ acc_message }}</h2>
     </header>
     <!-- view a table of PT -->
+    <section>
     <h3>PT-To-Do</h3>
     <table>
       <tr>
@@ -41,7 +42,7 @@
         {% endfor %}
       </select>
       <br>
-      <input type="submit" value="Submit">
+      <input type="submit" value="Submit" id="submit_button">
     </form>
       
     {% if status == "exco" %}
@@ -64,12 +65,17 @@
       <input id="pt_duration" name="pt_duration" type="number" min="0" required>
       <!-- use radio to set consecutive or not -->
       <br>
-      <input type="submit" value="Add PT">
+      <input type="submit" value="Add PT" id="submit_button">
     </form>
     {% endif %}
-    <hr>
-    <form action="/logout">
-      <input type="Submit" value="Log Out">
-    </form>
+    </section>
+    <footer>
+      <form action="/logout">
+        <input type="Submit" value="Log Out" id="submit_button">
+      </form>
+    </footer>
+    
+    <img src="{{ url_for('static', filename='tkd logo.jpg') }}" alt="ASK TKD Logo">
+    
   </body>
 </html>

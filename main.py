@@ -39,7 +39,6 @@ def signup():
 
 @app.route("/store", methods=["POST"])
 def store():
-    print("hello")
     global signup_message
     global login_message
 
@@ -56,7 +55,7 @@ def store():
         if row[1] == name:
             signup_message = "Username already exists!"
             return redirect("/signup")
-    print("hello")
+
     # password validation done in frontend
 
     if status == "exco" and pin != exco_pin:
@@ -70,6 +69,26 @@ def store():
         VALUES (?, ?, ?);""", account_detail)
     conn.commit()
 
+    cursor.execute("SELECT acc_id FROM Account_Detail WHERE name = ?;", (name,))
+    acc_id = cursor.fetchone()[0]
+
+    # add existing PT into AccountPT table
+    cursor.execute("SELECT * FROM Physical_Training;")
+    pt_list = cursor.fetchall()
+    now = datetime.now().date()
+    for row in pt_list:
+        pt_id = row[0]
+        end_date = datetime.strptime(row[5], "%Y-%m-%d").date()
+        print("now",now)
+        print("end",end_date)
+        if end_date >= now:
+            account_pt = (acc_id, pt_id)
+            cursor.execute("""
+                INSERT INTO AccountPT (acc_id, pt_id)
+                VALUES (?, ?);""", account_pt)
+    
+    conn.commit()
+    
     login_message = "Account created successfully!"
     return redirect("/")
 
@@ -180,7 +199,7 @@ def account():
                 print(pt_rep)
                 pt_reps.append(pt_rep)
             else:
-                pt_reps.append("No Description")
+                pt_reps.append("No Reps")
             
     print(pt_details)
     print(pt_descs)
