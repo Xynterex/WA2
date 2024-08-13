@@ -8,7 +8,7 @@ app = Flask(__name__)
 conn = sqlite3.connect("taekwondo_pt_tracker.db")
 cursor = conn.cursor()
 
-# check all tables (so that I don't have to bloody redownload the db file)
+# check all tables (so that I don't have to redownload the db file)
 cursor.execute("SELECT * FROM Account_Detail;")
 print("Account_Detail: ", cursor.fetchall())
 cursor.execute("SELECT * FROM Physical_Training;")
@@ -46,7 +46,25 @@ def store():
     password = request.form.get("password")
     status = request.form.get("status")
     pin = request.form.get("pin", "")
-
+    # validate password
+    if len(password) < 8:
+        signup_message = "Password must be at least 8 characters long."
+        return redirect("/signup")
+    else:
+        has_digit = False
+        has_upper = False
+        has_lower = False
+        for char in password:
+            if char.isdigit():
+                has_digit = True
+            elif char.isupper():
+                has_upper = True
+            elif char.islower():
+                has_lower = True
+        if not has_digit or not has_upper or not has_lower:
+            signup_message = "Password must contain at least one numeric, lowercase and uppercase character"
+            return redirect("/signup")
+        
     # open Account_Detail table
     cursor.execute("SELECT * FROM Account_Detail;")
     details = cursor.fetchall()
@@ -55,8 +73,6 @@ def store():
         if row[1] == name:
             signup_message = "Username already exists!"
             return redirect("/signup")
-
-    # password validation done in frontend
 
     if status == "exco" and pin != exco_pin:
         signup_message = "Exco PIN is incorrect."
